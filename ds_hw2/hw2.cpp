@@ -3,7 +3,6 @@
 #define STACK_SIZE 4
 #define QUEUE_SIZE 8
 #define MAX_STUDENTS 100
-//�ֺεۤF
 
 using namespace std;
 
