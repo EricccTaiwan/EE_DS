@@ -4,7 +4,11 @@
         "ostream": "cpp",
         "string": "cpp",
         "*.tcc": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "deque": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "system_error": "cpp"
     },
     "cmake.configureOnOpen": false
 }

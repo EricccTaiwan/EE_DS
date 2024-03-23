@@ -1,12 +1,12 @@
 #include <iostream>
 #include <fstream>
 
-#define STACK_SIZE 4
-#define QUEUE_SIZE 8
-#define MAX_WEIGHT 260
+#define STACK_SIZE 4  //公車4人
+#define QUEUE_SIZE 8  //車站8人
+#define MAX_WEIGHT 260 //公車限重
 
 using namespace std;
-class Stack {  // Stack class 
+class Stack {          // 實作stack
 private:
     int top, capacity;
     int* stack;
@@ -42,7 +42,7 @@ public:
         return total;
     }
 };
-class Queue { // Queue class
+class Queue {       //實作queue
 private:
     int front, rear, capacity;
     int* queue;
@@ -71,17 +71,17 @@ public:
         front = (front + 1) % capacity;
         return weight;
     }
-    int size() 
+    int size()   //計算queue內的人數，用於條件a
     {
         return (rear - front + capacity) % capacity;
     }
 
 };
 
-void student_to_station(Queue& train_station, Queue& student_weight);
-void station_to_bus(Queue& train_station, Stack& bus);
-void bus_to_eebuilding(Stack& bus, Queue& eebuilding);
-void eebuilding_print(Queue& eebuilding, ofstream& outputFile);
+void student_to_station (Queue& train_station, Queue& student_weight);
+void station_to_bus     (Queue& train_station, Stack& bus);
+void bus_to_eebuilding  (Stack& bus, Queue& eebuilding);
+void eebuilding_print   (Queue& eebuilding, ofstream& outputFile);
 
 int main(){
     ifstream inputFile("input.txt");
@@ -99,9 +99,9 @@ int main(){
         Queue student_weight (student_num+1); //根據測資
         Queue eebuilding     (student_num+1); //根據測資
 
-        if(student_num < 8 || student_num>100) 
+        if(student_num < 8 || student_num>100) //檢查條件d
         {   
-            outputFile << "student number should be between 8 and 100 !"<<endl;  //題目人數限制
+            outputFile << "student number should be between 8 and 100 !"<<endl;  
             for( int j = 0 ; j < student_num ; j++ )
             {
                 int weight ;
@@ -121,9 +121,9 @@ int main(){
         {
             int weight ;
             inputFile >> weight;         
-            if (weight<0 || weight > 260)
+            if (weight<0 || weight > 260) // 檢查條件c
             {  
-                valid_weight = false;   //題目體重限制
+                valid_weight = false;  
             }
             student_weight.push(weight);
             if (j!=student_num-1)
@@ -132,25 +132,26 @@ int main(){
             }
         }
 
-        if(!valid_weight)
+        if(!valid_weight)  //條件d不符
         {
             outputFile << "student weight should be between 0 and 260 !"<<endl;
             inputFile.clear();
             continue;
         }
 
-        while( !eebuilding.isFull() )
+
+        while( !eebuilding.isFull() ) //eebuilding未滿
         {
-            student_to_station(train_station ,student_weight); //學生進火車站
-            station_to_bus    (train_station ,bus           ); //火車站學生，進公車
-            bus_to_eebuilding (bus           ,eebuilding    ); //公車，到達eebuilding
+            student_to_station(train_station, student_weight); //學生進火車站
+            station_to_bus    (train_station, bus           ); //火車站學生進公車
+            bus_to_eebuilding (bus          , eebuilding    ); //公車到達eebuilding
         }
 
-        eebuilding_print(eebuilding,outputFile); //印出eebuilding的學生體重
+        eebuilding_print(eebuilding, outputFile); //印出eebuilding的學生體重
 
-        if (i != test_case - 1) 
+        if (i != test_case - 1) //最後一次不換行
         {
-            outputFile << endl;
+            outputFile << endl; 
         }
     }
     inputFile.close();
@@ -162,8 +163,7 @@ void student_to_station(Queue& train_station, Queue& student_weight)
 {
     while( !train_station.isFull() && !student_weight.isEmpty() ) //車站未滿，測資仍有人
     {
-        int weight = student_weight.pop();
-        train_station.push(weight);
+        train_station.push(student_weight.pop());
     }
 }
 
@@ -171,21 +171,18 @@ void station_to_bus(Queue& train_station, Stack& bus)
 {
     while( !train_station.isEmpty() && !bus.isFull() )  //火車站有學生，公車未滿
     {
-        int weight = train_station.pop();
-        bus.push(weight);
+        bus.push(train_station.pop());
         int bus_sum_weight = bus.sum();
         int attempt = 0;
-        int train_station_size = train_station.size();
-        while (bus_sum_weight > MAX_WEIGHT && attempt < train_station_size)  //公車超重，且為嘗試次數小於火車站人數
+        int max_attemps = train_station.size(); 
+        while (bus_sum_weight > MAX_WEIGHT && attempt < max_attemps)  //檢查條件a，公車超重，且為嘗試次數小於火車站人數
         {
-            int bus_last_overweight = bus.pop();
-            train_station.push(bus_last_overweight);
-            int bus_next_weight = train_station.pop();
-            bus.push(bus_next_weight);
+            train_station.push(bus.pop());
+            bus.push(train_station.pop());
             ++attempt;
             bus_sum_weight = bus.sum();
         }
-        if (bus_sum_weight > MAX_WEIGHT)  //公車超重，且為車站內的人都嘗試過
+        if (bus_sum_weight > MAX_WEIGHT)  //檢查條件b，公車仍超重，且為車站內的人都嘗試過
         { 
             break;
         }                  
@@ -196,8 +193,7 @@ void bus_to_eebuilding(Stack& bus, Queue& eebuilding)
 {
     while( !bus.isEmpty() )  //直到公車沒人
     {
-        int weight = bus.pop();
-        eebuilding.push(weight);
+        eebuilding.push(bus.pop());
     }
 }
 
@@ -205,8 +201,7 @@ void eebuilding_print(Queue& eebuilding, ofstream& outputFile)
 {
     while( !eebuilding.isEmpty() ) //直到eebuilding沒人
     {
-        int weight_eebuilding = eebuilding.pop();
-        outputFile << weight_eebuilding;
+        outputFile << eebuilding.pop();
         if (!eebuilding.isEmpty()) 
         {
             outputFile << ",";
