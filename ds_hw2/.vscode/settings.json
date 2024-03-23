@@ -2,7 +2,9 @@
     "files.associations": {
         "new": "cpp",
         "ostream": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "*.tcc": "cpp",
+        "iosfwd": "cpp"
     },
     "cmake.configureOnOpen": false
 }
