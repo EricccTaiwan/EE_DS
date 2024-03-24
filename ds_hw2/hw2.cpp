@@ -102,7 +102,7 @@ int main(){
         Queue eebuilding     (student_num+1); //根據測資
         if(student_num < 8 || student_num>100) //檢查條件d
         {   
-            outputFile << "condition D doesn't satisfy !"<<endl;  
+            outputFile << "限制 D 不能成立 !"<<endl;  
             for( int j = 0 ; j < student_num ; j++ )
             {
                 int weight ;
@@ -114,7 +114,7 @@ int main(){
                 }
             }
             inputFile.clear();
-            continue;  //條件d不符，跳過此次測資
+            continue;  //條件d若成立，跳過此次測資
         }
         bool valid_weight = true;
         for( int j = 0 ; j < student_num ; j++ )
@@ -131,9 +131,9 @@ int main(){
                 inputFile.ignore(1, ',');
             }
         }
-        if(!valid_weight)  //條件c不符，跳過此次測資
+        if(!valid_weight)  //條件c若成立，跳過此次測資
         {
-            outputFile <<"condition C doen't satisfy !"<<endl;
+            outputFile <<"限制 C 不能成立 !"<<endl;
             inputFile.clear();
             continue;      
         }
