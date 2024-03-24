@@ -41,6 +41,10 @@ public:
         }
         return total;
     }
+    int size() 
+    {
+        return top + 1;
+    }
 };
 class Queue {       //實作queue
 private:
@@ -86,10 +90,8 @@ void eebuilding_print   (Queue& eebuilding, ofstream& outputFile);
 int main(){
     ifstream inputFile("input.txt");
     ofstream outputFile("output.txt");
-
     Queue train_station  (QUEUE_SIZE+1); //固定大小
     Stack bus            (STACK_SIZE);   //固定大小
-    
     int test_case; //測資數量
     inputFile >> test_case;
     for (int i = 0; i < test_case; ++i) 
@@ -98,24 +100,22 @@ int main(){
         inputFile >> student_num;
         Queue student_weight (student_num+1); //根據測資
         Queue eebuilding     (student_num+1); //根據測資
-
         if(student_num < 8 || student_num>100) //檢查條件d
         {   
-            outputFile << "student number should be between 8 and 100 !"<<endl;  
+            outputFile << "condition D doesn't satisfy !"<<endl;  
             for( int j = 0 ; j < student_num ; j++ )
             {
                 int weight ;
                 inputFile >> weight;         
                 student_weight.push(weight);
-                if (j!=student_num-1)
+                if (j < student_num-1)
                 {        
                     inputFile.ignore(1, ',');
                 }
             }
             inputFile.clear();
-            continue;
+            continue;  //條件d不符，跳過此次測資
         }
-
         bool valid_weight = true;
         for( int j = 0 ; j < student_num ; j++ )
         {
@@ -126,30 +126,25 @@ int main(){
                 valid_weight = false;  
             }
             student_weight.push(weight);
-            if (j!=student_num-1)
+            if (j < student_num-1)
             {      
                 inputFile.ignore(1, ',');
             }
         }
-
-        if(!valid_weight)  //條件d不符
+        if(!valid_weight)  //條件c不符，跳過此次測資
         {
-            outputFile << "student weight should be between 0 and 260 !"<<endl;
+            outputFile <<"condition C doen't satisfy !"<<endl;
             inputFile.clear();
-            continue;
+            continue;      
         }
-
-
-        while( !eebuilding.isFull() ) //eebuilding未滿
+        while( eebuilding.isFull() == false ) //eebuilding未滿
         {
             student_to_station(train_station, student_weight); //學生進火車站
             station_to_bus    (train_station, bus           ); //火車站學生進公車
             bus_to_eebuilding (bus          , eebuilding    ); //公車到達eebuilding
         }
-
         eebuilding_print(eebuilding, outputFile); //印出eebuilding的學生體重
-
-        if (i != test_case - 1) //最後一次不換行
+        if (i < test_case - 1) //最後一次不換行
         {
             outputFile << endl; 
         }
@@ -161,7 +156,7 @@ int main(){
 
 void student_to_station(Queue& train_station, Queue& student_weight)
 {
-    while( !train_station.isFull() && !student_weight.isEmpty() ) //車站未滿，測資仍有人
+    while( train_station.isFull()==false && student_weight.isEmpty()==false ) //車站未滿，測資仍有人
     {
         train_station.push(student_weight.pop());
     }
@@ -169,7 +164,7 @@ void student_to_station(Queue& train_station, Queue& student_weight)
 
 void station_to_bus(Queue& train_station, Stack& bus)
 {
-    while( !train_station.isEmpty() && !bus.isFull() )  //火車站有學生，公車未滿
+    while( train_station.isEmpty()==false && bus.isFull()==false )  //火車站有學生，公車未滿
     {
         bus.push(train_station.pop());
         int bus_sum_weight = bus.sum();
@@ -179,8 +174,8 @@ void station_to_bus(Queue& train_station, Stack& bus)
         {
             train_station.push(bus.pop());
             bus.push(train_station.pop());
-            ++attempt;
-            bus_sum_weight = bus.sum();
+            attempt++;
+            bus_sum_weight = bus.sum();    //更新公車總重
         }
         if (bus_sum_weight > MAX_WEIGHT)  //檢查條件b，公車仍超重，且為車站內的人都嘗試過
         { 
@@ -191,7 +186,8 @@ void station_to_bus(Queue& train_station, Stack& bus)
 
 void bus_to_eebuilding(Stack& bus, Queue& eebuilding)
 {
-    while( !bus.isEmpty() )  //直到公車沒人
+    int bus_arrival_num = bus.size();          //公車上人數
+    for( int i = 0; i < bus_arrival_num ; i++) //下車，直到公車沒人
     {
         eebuilding.push(bus.pop());
     }
@@ -199,10 +195,11 @@ void bus_to_eebuilding(Stack& bus, Queue& eebuilding)
 
 void eebuilding_print(Queue& eebuilding, ofstream& outputFile)
 {
-    while( !eebuilding.isEmpty() ) //直到eebuilding沒人
+    int eebuilding_full_num = eebuilding.size();      //系館人數
+    for( int i = 0 ; i < eebuilding_full_num ; i++ )  //印出，直到系館沒人
     {
         outputFile << eebuilding.pop();
-        if (!eebuilding.isEmpty()) 
+        if(i < eebuilding_full_num-1)    //最後一個不加逗號
         {
             outputFile << ",";
         }
