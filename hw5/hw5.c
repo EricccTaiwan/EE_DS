@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <limits.h>
 #define LEN (1 * 10000) // 陣列長度
 
 void swap(int *a, int *b) {
@@ -9,95 +10,74 @@ void swap(int *a, int *b) {
     *b = temp;
 }
 
-void bubblesort(int a[], int n) {
-    for (int i = 0; i < n-1; i++) {
-        for (int j = 0; j < n-1-i; j++) {
-            if (a[j] > a[j+1]) {
-                swap(&a[j], &a[j+1]);
+void bubblesort(int arr[], int n) {
+    for (int i = 0; i < n-1; i++) {       //check each number
+        for (int j = 0; j < n-1-i; j++) { //compare each number
+            if (arr[j] > arr[j+1]) {      //前面num > 後面num
+                swap(&arr[j], &arr[j+1]); //前後交換
             }
         }
     }
 }
 
-int partition(int arr[], int low, int high) 
+int partition(int arr[], int start, int end) 
 { 
-    int pivot = arr[low]; 
-    int i = low; 
-    int j = high; 
-
+    int pivot = arr[start]; //首項當pivot
+    int i = start; 
+    int j = end; 
     while (i < j) { 
-        while (arr[i] <= pivot && i <= high - 1) { 
-            i++; 
-        } 
-        // condition 2: find the first element smaller than 
-        // the pivot (from last) 
-        while (arr[j] > pivot && j >= low + 1) { 
-            j--; 
-        } 
+        do i++; while (arr[i] <= pivot); //找到比pivot大的數
+        do j--; while (arr[j] > pivot);  //找到比pivot小的數
         if (i < j) { 
-            swap(&arr[i], &arr[j]); 
+            swap(&arr[i], &arr[j]); //交換
         } 
     } 
-    swap(&arr[low], &arr[j]); 
+    swap(&arr[start], &arr[j]); //pivot與j交換
     return j; 
 } 
 
-void quicksort(int arr[], int low, int high) 
+void quicksort(int arr[], int start, int end) 
 { 
-    if (low < high) { 
-        int partitionIndex = partition(arr, low, high); 
-        // Recursively call quickSort() for left and right 
-        // half based on partition Index 
-        quicksort(arr, low, partitionIndex - 1); 
-        quicksort(arr, partitionIndex + 1, high); 
+    if (start < end) { 
+        int pivot = partition(arr, start, end); //找出pivot
+        quicksort(arr, start, pivot - 1); //pivot左邊
+        quicksort(arr, pivot + 1, end);   //pivot右邊
     } 
 } 
 
-void merge(int arr[], int l, int m, int r) {
+void merge(int arr[], int l, int q, int r) {
     int i, j, k;
-    int n1 = m - l + 1;
-    int n2 = r - m;
-
-    int L[n1], R[n2];
-
+    int n1 = q - l + 1;
+    int n2 = r - q;
+    int L[n1+1], R[n2+1];
     for (i = 0; i < n1; i++)
-        L[i] = arr[l + i];
+        L[i] = arr[l + i];  //左邊
     for (j = 0; j < n2; j++)
-        R[j] = arr[m + 1 + j];
-
+        R[j] = arr[q + 1 + j]; //右邊
+    L[n1] = INT_MAX; //sentinel
+    R[n2] = INT_MAX; //sentinel
     i = 0;
     j = 0;
     k = l;
-    while (i < n1 && j < n2) {
-        if (L[i] <= R[j]) {
-            arr[k] = L[i];
+    while (k <= r) {
+        if (L[i] <= R[j]) {  //左邊小於等於右邊
+            arr[k] = L[i];   //放左邊的元素
             i++;
-        } else {
-            arr[k] = R[j];
-            j++;
+        } 
+        else {
+            arr[k] = R[j]; //放右邊的元素
+            j++;  
         }
-        k++;
-    }
-
-    while (i < n1) {
-        arr[k] = L[i];
-        i++;
-        k++;
-    }
-
-    while (j < n2) {
-        arr[k] = R[j];
-        j++;
         k++;
     }
 }
 
 void mergeSort(int arr[], int l, int r) {
     if (l < r) {
-        int m = l + (r - l) / 2;
-        mergeSort(arr, l, m);
-        mergeSort(arr, m + 1, r);
-        merge(arr, l, m, r);
+        int q = l + (r - l) / 2;  //中間
+        mergeSort(arr, l, q);     //左邊，包含q
+        mergeSort(arr, q + 1, r); //右邊
+        merge(arr, l, q, r);      //merge
     }
 }
 
